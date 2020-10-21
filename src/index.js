@@ -1,5 +1,5 @@
 const express = require('express');
-const { uuid, isUuid } = require('uuidv4');
+const { uuid } = require('uuidv4');
 
 const app = express();
 
@@ -32,7 +32,7 @@ app.put('/projects/:id', (request, response) => {
     const projectsIndex = projects.findIndex(project => project.id === id);
 
     if( projectsIndex === -1 ) {
-        response.json({ error: 'Invalid Prject ID' });
+        return response.status(400).json({ error: 'Project not found' });
     }
 
     const project = {
@@ -41,17 +41,24 @@ app.put('/projects/:id', (request, response) => {
         owner,
     }
 
-    projects.push(project);
+    projects[projectsIndex] = project;
 
     return response.json(project);
  
 });
 
-app.delete('/projects/2', (request, response) => {
-    return response.json([
-        'Projeto4',
-        'Projeto3',
-    ]);
+app.delete('/projects/:id', (request, response) => {
+    const { id } = request.params;
+
+    const projectsIndex = projects.findIndex(project => project.id === id);
+
+    if ( projectsIndex === -1 ) {
+        return response.status(400).json({ error: 'Project not found' });
+    }
+
+    projects.splice(projectsIndex);
+
+    return response.status(200).send();
 });
 
 app.listen(3333, () => {
